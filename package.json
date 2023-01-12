@@ -1,0 +1,20 @@
+{
+  "name": "stream-resources",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node $(jq -r .main < package.json)",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@git.finwo.net:stream-resources"
+  },
+  "author": "Robin Bron",
+  "license": "MIT",
+  "dependencies": {
+    "pngjs": "^6.0.0"
+  }
+}
