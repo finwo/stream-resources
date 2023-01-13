@@ -3,8 +3,88 @@ import { insidePolygon } from './polygon-detection.js';
 
 export function renderScene(
   scene,
-  windowX,
-  windowY,
+  windowWidth,
+  windowHeight,
+  outputWidth,
+  outputHeight,
+) {
+
+  // Working with intervals, not points
+  // 3 points to 4 points =
+  //     -1     0     1
+  //   ?     ?     ?     ?
+  const intWindowWidth  = windowWidth  / (outputWidth  - 1) * outputWidth;
+  const intWindowHeight = windowHeight / (outputHeight - 1) * outputHeight;
+
+  const intermediate = render_core(
+    scene,
+    intWindowWidth,
+    intWindowHeight,
+    outputWidth + 1,
+    outputHeight + 1,
+  );
+
+  const img = new PNG({
+    width: outputWidth,
+    height: outputHeight,
+    colorType: 6 // color & alpha
+  });
+
+  // Iterate over the whole canvas
+  for(let y=0; y<img.height; y++) {
+    for(let x=0; x<img.width; x++) {
+      const dst_idx = (img.width * y + x) << 2;
+      const src_idx = [
+        ((intermediate.width * (y+0) + (x+0)) << 2),
+        ((intermediate.width * (y+0) + (x+1)) << 2),
+        ((intermediate.width * (y+1) + (x+0)) << 2),
+        ((intermediate.width * (y+1) + (x+1)) << 2),
+      ];
+
+      // Alpha first
+      img.data[dst_idx + 3] = Math.round(
+        ( intermediate.data[src_idx[0] + 3] +
+          intermediate.data[src_idx[1] + 3] +
+          intermediate.data[src_idx[2] + 3] +
+          intermediate.data[src_idx[3] + 3]
+        ) / 4
+      );
+
+      // Accumulator
+      let color = [0,0,0];
+
+      // Add colors from the src pixels
+      let colorWeight = 0;
+      for(let i=0; i<3; i++) {
+        if (intermediate.data[src_idx[i] + 3]) {
+          colorWeight++;
+          color[0] += intermediate.data[src_idx[i] + 0] ** 2;
+          color[1] += intermediate.data[src_idx[i] + 1] ** 2;
+          color[2] += intermediate.data[src_idx[i] + 2] ** 2;
+        }
+      }
+
+      // If anything had opacity
+      if (colorWeight) {
+        color[0] = Math.round(Math.sqrt(color[0] / colorWeight));
+        color[1] = Math.round(Math.sqrt(color[1] / colorWeight));
+        color[2] = Math.round(Math.sqrt(color[2] / colorWeight));
+      }
+
+      // Write down the value for our pixels
+      img.data[dst_idx + 0] = color[0];
+      img.data[dst_idx + 1] = color[1];
+      img.data[dst_idx + 2] = color[2];
+    }
+  }
+
+  return img;
+}
+
+function render_core(
+  scene,
+  windowWidth,
+  windowHeight,
   outputWidth,
   outputHeight,
 ) {
@@ -23,8 +103,8 @@ export function renderScene(
       // Calculate logical point we're rendering
       const sx = px / (outputWidth  - 1)
       const sy = py / (outputHeight - 1)
-      const x  = (-windowX) + ((windowX*2) * sx)
-      const y  =   windowY  - ((windowY*2) * sy)
+      const x  = (-windowWidth ) + ((windowWidth *2) * sx)
+      const y  =   windowHeight  - ((windowHeight*2) * sy)
 
       // Iterate over the shapes
       for(const shape of scene) {
@@ -45,82 +125,3 @@ export function renderScene(
 
   return img;
 }
-
-
-// for(let y=0; y<height; y++) {
-//   for(let x=0; x<width; x++) {
-
-//     const idx       = (img.width * y + x) << 2;
-//     let   crossings = 0;
-
-//     // Iterate over the shapes
-//     for(const shape of scene) {
-//       if (
-
-//       // Iterate over lines in the shape
-//       for(let i=0; i<shape.length; i++) {
-
-//         // Fetch shape
-//         const pointA = [...shape[i]];
-//         const pointB = [...shape[(i + 1) % shape.length]];
-
-//         // Line position is relative to our testPoint
-//         pointA[0] -= x;
-//         pointA[1] -= y;
-//         pointB[0] -= x;
-//         pointB[1] -= y;
-
-//         if ((pointA[0] < 0) && (pointB[0] < 0)) continue; // Both points to the left
-//         if ((pointA[1] < 0) && (pointB[1] < 0)) continue; // Both points to above test
-//         if ((pointA[1] > 0) && (pointB[1] > 0)) continue; // Both points to below test
-
-//         // Vertical line
-//         if (pointA[0] == pointB[0]) {
-//           crossings += 1;
-//           continue;
-//         }
-
-//         // Horizontal line
-//         // Horizontal line = NOT crossing
-//         if (pointA[1] == pointB[1]) {
-//           continue;
-//         }
-
-//         // Order points, calculate slope
-//         const left   = pointA[0] < pointB[0] ? pointA : pointB;
-//         const right  = pointB[0] < pointA[0] ? pointA : pointB;
-//         const slope  = (right[1] - left[1]) / (right[0] - left[0]);
-
-//         // Translate to left = at 0,0
-//         const targetY = -left[1];
-//         const targetP = [ right[0] - left[0], right[1] - left[1] ];
-//         const ratioP  = targetY / targetP[1];
-
-//         // Calculate where it crosses the target & translate back to testpoint-based
-//         const targetX = (targetP[0] * ratioP) + left[0];
-
-//         // If it crosses to the right of us, it's a match
-//         if (targetX >= 0) {
-//           crossings += 1;
-//           continue;
-//         }
-
-//       }
-//     }
-
-
-//     if (crossings % 2) {
-//       img.data[idx + 0] = 255;
-//       img.data[idx + 1] =   0;
-//       img.data[idx + 2] =   0;
-//       img.data[idx + 3] = 255;
-//     } else {
-//       img.data[idx + 0] =   0;
-//       img.data[idx + 1] =   0;
-//       img.data[idx + 2] =   0;
-//       img.data[idx + 3] =   0;
-//     }
-
-//   }
-// }
-

@@ -1,13 +1,16 @@
 import * as fs from 'fs';
 import { renderScene } from './render-scene.js';
 
-const verticalPixels = 144;
+const verticalPixels = 1440;
+// const aspectRatio    = 128 / 96;
 const aspectRatio    = 16 / 9;
+// const aspectRatio    = 4/3;
+// const aspectRatio    = 1;
 const windowScale    = 2;
 
 const canvasSize = [ verticalPixels * aspectRatio, verticalPixels ];
 
-const windowSize = [ 2, 2 / aspectRatio ];
+const windowSize = [ windowScale, windowScale / aspectRatio ];
 
 const scene = [
 
