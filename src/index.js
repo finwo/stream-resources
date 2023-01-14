@@ -1,18 +1,20 @@
 import * as fs from 'fs';
-import { renderScene } from './render-scene.js';
-import { rotate      } from './rotate.js';
+import { render_aa, AA_METHOD } from './anti-aliasing.js';
+import { rotate    } from './rotate.js';
 
-// const verticalPixels = 1440;
-const verticalPixels = 144;
+// const verticalPixels = 4;
+const verticalPixels = 1440;
+// const verticalPixels = 96;
 // const aspectRatio    = 128 / 96;
-const aspectRatio    = 16 / 9;
+const aspectRatio    = 21 / 9;
 // const aspectRatio    = 4/3;
 // const aspectRatio    = 1;
-const windowScale    = 2;
+
+const windowScale    = 1;
 
 const canvasSize = [ verticalPixels * aspectRatio, verticalPixels ];
 
-const windowSize = [ windowScale, windowScale / aspectRatio ];
+const windowSize = [ windowScale * aspectRatio, windowScale ];
 
 const triangle = [
   [ 255, 0, 0 ], // Red
@@ -71,12 +73,14 @@ const scene = [
 //   ]
 // ];
 
-const img = renderScene(
+const img = render_aa(
   scene,
   windowSize[0],
   windowSize[1],
   canvasSize[0],
-  canvasSize[1]
+  canvasSize[1],
+  AA_METHOD.SSAA20,
+  // aa_method_none,
 );
 
 img
