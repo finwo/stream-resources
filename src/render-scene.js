@@ -41,21 +41,20 @@ export function renderScene(
         ((intermediate.width * (y+1) + (x+1)) << 2),
       ];
 
-      // Alpha first
-      img.data[dst_idx + 3] = Math.round(
-        ( intermediate.data[src_idx[0] + 3] +
-          intermediate.data[src_idx[1] + 3] +
-          intermediate.data[src_idx[2] + 3] +
-          intermediate.data[src_idx[3] + 3]
-        ) / 4
-      );
+      // Alculate alpha in 1 go
+      img.data[dst_idx + 3] = Math.round((
+        intermediate.data[src_idx[0] + 3] +
+        intermediate.data[src_idx[1] + 3] +
+        intermediate.data[src_idx[2] + 3] +
+        intermediate.data[src_idx[3] + 3]
+      ) / 4);
 
-      // Accumulator
+      // Accumulators
       let color = [0,0,0];
 
       // Add colors from the src pixels
       let colorWeight = 0;
-      for(let i=0; i<3; i++) {
+      for(let i=0; i<4; i++) {
         if (intermediate.data[src_idx[i] + 3]) {
           colorWeight++;
           color[0] += intermediate.data[src_idx[i] + 0] ** 2;
