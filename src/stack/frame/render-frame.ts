@@ -1,8 +1,8 @@
-import { PNG } from 'pngjs';
 import { insidePolygon } from './polygon-detection.js';
+import { PNG } from 'pngjs';
 
-export function renderScene(
-  scene,
+export function renderFrame(
+  renderable,
   windowWidth,
   windowHeight,
   outputWidth,
@@ -27,12 +27,12 @@ export function renderScene(
       const y  =   windowHeight  - ((windowHeight*2) * sy)
 
       // Iterate over the shapes
-      for(const shape of scene) {
-        const color  = shape[0];
-        const points = shape.slice(1);
+      for(let i=0; i<renderable.length; i++) {
+        const color = renderable[i][0];
+        const path  = renderable[i].slice(1);
 
         // Inside = color and stop
-        if (insidePolygon(points, x, y)) {
+        if (insidePolygon(path, x, y)) {
           img.data[idx + 0] = color[0];
           img.data[idx + 1] = color[1];
           img.data[idx + 2] = color[2];

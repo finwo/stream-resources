@@ -2,9 +2,10 @@
   "name": "stream-resources",
   "version": "1.0.0",
   "description": "",
-  "main": "src/index.js",
-  "type": "module",
+  "main": "build/index.js",
   "scripts": {
+    "build": "npx esbuild $(node esbuild.config.js)",
+    "prestart": "npm run build",
     "start": "node $(jq -r .main < package.json)",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -15,6 +16,12 @@
   "author": "Robin Bron",
   "license": "MIT",
   "dependencies": {
-    "pngjs": "^6.0.0"
+    "mkdirp": "^1.0.4",
+    "pngjs": "^6.0.0",
+    "rimraf": "^4.0.5",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "fast-glob": "^3.2.12"
   }
 }

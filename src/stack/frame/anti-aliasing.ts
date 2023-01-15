@@ -1,5 +1,5 @@
+import { renderFrame } from './render-frame.js';
 import { PNG } from 'pngjs';
-import { renderScene } from './render-scene.js';
 
 export const AA_METHOD = {
   none  : 0,
@@ -9,21 +9,20 @@ export const AA_METHOD = {
 };
 
 export function render_aa(
-  scene,
+  renderable,
   windowWidth,
   windowHeight,
   outputWidth,
   outputHeight,
   aa_method = 0,
 ) {
-
   const render_fn = aa_method & AA_METHOD.SSAA4 ?
     render_aa_corner :
-    renderScene;
+    renderFrame;
 
   if (aa_method & AA_METHOD.SSAA5) {
     return render_aa_dual(
-      scene,
+      renderable,
       windowWidth,
       windowHeight,
       outputWidth,
@@ -32,20 +31,18 @@ export function render_aa(
     );
   } else {
     return render_fn(
-      scene,
+      renderable,
       windowWidth,
       windowHeight,
       outputWidth,
       outputHeight
     );
   }
-
-  return img;
 }
 
 // Essentially SSAAx4
 export function render_aa_corner(
-  scene,
+  renderable,
   windowWidth,
   windowHeight,
   outputWidth,
@@ -59,8 +56,8 @@ export function render_aa_corner(
   const intWindowWidth  = windowWidth  / (outputWidth  - 1) * outputWidth;
   const intWindowHeight = windowHeight / (outputHeight - 1) * outputHeight;
 
-  const intermediate = renderScene(
-    scene,
+  const intermediate = renderFrame(
+    renderable,
     intWindowWidth,
     intWindowHeight,
     outputWidth + 1,
@@ -125,7 +122,7 @@ export function render_aa_corner(
 
 // Essentially SSAAx5
 export function render_aa_dual(
-  scene,
+  renderable,
   windowWidth,
   windowHeight,
   outputWidth,
@@ -135,7 +132,7 @@ export function render_aa_dual(
 
   // Render fullsize version
   const fullsize = renderFn(
-    scene,
+    renderable,
     windowWidth,
     windowHeight,
     outputWidth,
@@ -157,7 +154,7 @@ export function render_aa_dual(
 
   // Render the intermediate to mix together with the fullsize
   const intermediate = renderFn(
-    scene,
+    renderable,
     intWindowWidth,
     intWindowHeight,
     outputWidth  - 1,
