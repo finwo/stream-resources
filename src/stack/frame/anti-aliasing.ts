@@ -4,8 +4,8 @@ import { PNG } from 'pngjs';
 export const AA_METHOD = {
   none  : 0,
   SSAA4 : 1, // Corner rendering
-  SSAA5 : 2, // Dual render, mix together
-  SSAA20: 3, // Corner first, then dual render mix together
+  SSAA8 : 2, // Dual render, mix together
+  SSAA32: 3, // Corner first, then dual render mix together
 };
 
 export function render_aa(
@@ -20,7 +20,7 @@ export function render_aa(
     render_aa_corner :
     renderFrame;
 
-  if (aa_method & AA_METHOD.SSAA5) {
+  if (aa_method & AA_METHOD.SSAA8) {
     return render_aa_dual(
       renderable,
       windowWidth,
@@ -120,7 +120,7 @@ export function render_aa_corner(
   return img;
 }
 
-// Essentially SSAAx5
+// Essentially SSAAx8
 export function render_aa_dual(
   renderable,
   windowWidth,
@@ -181,14 +181,14 @@ export function render_aa_dual(
       ];
 
       // Accumulators
-      let   colorWeight = fullsize.data[dst_idx + 3] ? 1 : 0;
-      let   alphaWeight = 1;
-      let   alpha       = fullsize.data[dst_idx + 3];
-      const color       = [
-        fullsize.data[dst_idx + 0] ** 2,
-        fullsize.data[dst_idx + 1] ** 2,
-        fullsize.data[dst_idx + 2] ** 2,
-      ];
+      let   alpha       = fullsize.data[dst_idx + 3] * 4;
+      let   alphaWeight = 4;
+      let   colorWeight = alpha ? 4 : 0;
+      const color       = alpha ? [
+        (fullsize.data[dst_idx + 0] ** 2) * 4,
+        (fullsize.data[dst_idx + 1] ** 2) * 4,
+        (fullsize.data[dst_idx + 2] ** 2) * 4,
+      ] : [ 0, 0, 0 ];
 
       // Top-left
       if ((x > 0) && (y > 0)) {

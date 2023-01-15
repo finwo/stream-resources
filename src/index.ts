@@ -26,7 +26,7 @@ s.entities.push({
         this.color,
         ...this.base,
       ],
-      Math.PI * timestamp,
+      Math.PI * timestamp / 2,
       [ 0.25, 0 ],
     );
     return output;
@@ -34,7 +34,7 @@ s.entities.push({
 });
 
 let circle = [[ 0, 85, 0 ],[]];
-const circlePrecision = 60;
+const circlePrecision = 9;
 for(let i=0; i < circlePrecision; i++) {
   circle[1].push([
     -0.15 + (Math.sin(Math.PI * 2 * i / circlePrecision) * 0.707 * 0.5),
@@ -48,9 +48,9 @@ s.entities.push({
 });
 
 s.render(
-  [ 1280, 720 ],   // resolution
-  1,               // window scale
-  60,              // fps
-  2,               // duration
-  AA_METHOD.SSAA5, // AA method
+  [ 2560, 1440 ],   // resolution
+  1,                // window scale
+  60,               // fps
+  2,                // duration
+  AA_METHOD.SSAA32, // AA method
 );
