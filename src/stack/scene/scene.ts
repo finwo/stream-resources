@@ -6,6 +6,7 @@ import rimraf from 'rimraf';
 import { PNG } from 'pngjs';
 import * as fs from 'fs';
 import path from 'path';
+import { enqueue } from '../../orchestrator';
 
 export class Scene {
   public entities: Entity[] = [];
@@ -38,23 +39,22 @@ export class Scene {
       process.stdout.write(`\rRendering ${(timestamp / (fps * duration) * 100).toFixed(2)}%  `);
       const renderable = this.toRenderable(timestamp / fps);
       const frameName  = ('000000' + timestamp.toString()).substr(-6);
-      const img        = render_aa(
+      enqueue({
+        type         : 'renderFrame',
+        windowWidth  : window * aspectRatio,
+        windowHeight : window,
+        outputWidth  : resolution[0],
+        outputHeight : resolution[1],
         renderable,
-        window * aspectRatio,
-        window,
-        resolution[0],
-        resolution[1],
+        frameName,
         aa_method,
-      );
-      fs.writeFileSync(
-        path.join(outdir, `${frameName}.png`),
-        PNG.sync.write(img)
-      );
+        outdir,
+      });
     }
     process.stdout.write(`\rRendering 100.00%  \n`);
-    exec(`ffmpeg -y -framerate ${fps} -i '${outdir}/%06d.png' -pix_fmt yuva420p -b:v 2500k -maxrate 2500k -minrate 1k -speed 0 '${outdir}/video.webm'`, (err, stdout, stderr) => {
-      if (stderr) process.stderr.write(stderr);
-      if (stdout) process.stdout.write(stdout);
-    });
+    // exec(`ffmpeg -y -framerate ${fps} -i '${outdir}/%06d.png' -pix_fmt yuva420p -b:v 2500k -maxrate 2500k -minrate 1k -speed 0 '${outdir}/video.webm'`, (err, stdout, stderr) => {
+    //   if (stderr) process.stderr.write(stderr);
+    //   if (stdout) process.stdout.write(stdout);
+    // });
   }
 }

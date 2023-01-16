@@ -1,56 +1,18 @@
-import { Scene     } from './stack/scene/scene';
-import { AA_METHOD } from './stack/frame/anti-aliasing';
-import { rotate    } from './stack/rotate';
+const cluster      = require('node:cluster');
+const numCPUs      = require('node:os').cpus().length;
+const orchestrator = require('./orchestrator');
+const worker       = require('./worker');
 
-const s = new Scene('animation');
-
-s.entities.push({
-  color: [ 0, 85, 170 ],
-  base: [
-    [ // Outer rectangle
-      [ 0.00,  0.33 ],
-      [ 0.50,  0.33 ],
-      [ 0.50, -0.33 ],
-      [ 0.00, -0.33 ],
-    ],
-    [ // Inner cutout
-      [ 0.167,  0.20 ],
-      [ 0.333,  0.20 ],
-      [ 0.333, -0.20 ],
-      [ 0.167, -0.20 ],
-    ],
-  ],
-  toRenderable(timestamp = 0) {
-    const output = rotate(
-      [
-        this.color,
-        ...this.base,
-      ],
-      Math.PI * timestamp / 2,
-      [ 0.25, 0 ],
-    );
-    return output;
+if (cluster.isPrimary) {
+  // Start workers
+  for (let i = 0; i < numCPUs; i++) {
+    cluster.fork();
   }
-});
-
-let circle = [[ 0, 85, 0 ],[]];
-const circlePrecision = 9;
-for(let i=0; i < circlePrecision; i++) {
-  circle[1].push([
-    -0.15 + (Math.sin(Math.PI * 2 * i / circlePrecision) * 0.707 * 0.5),
-            (Math.cos(Math.PI * 2 * i / circlePrecision) * 0.707 * 0.5),
-  ]);
+  for (const id in cluster.workers) {
+    const worker = cluster.workers[id];
+    worker.on('message', orchestrator.messageHandler.bind(null, worker));
+  }
+  orchestrator.main(numCPUs);
+} else if (cluster.isWorker) {
+  worker.main(cluster.worker.id);
 }
-s.entities.push({
-  toRenderable() {
-    return circle;
-  }
-});
-
-s.render(
-  [ 2560, 1440 ],   // resolution
-  1,                // window scale
-  60,               // fps
-  2,                // duration
-  AA_METHOD.SSAA32, // AA method
-);
