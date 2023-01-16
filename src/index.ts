@@ -1,7 +1,9 @@
 const cluster      = require('node:cluster');
-const numCPUs      = require('node:os').cpus().length;
 const orchestrator = require('./orchestrator');
 const worker       = require('./worker');
+
+const numCPUs      = require('node:os').cpus().length;
+// const numCPUs      = 1;
 
 if (cluster.isPrimary) {
   // Start workers

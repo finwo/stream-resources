@@ -6,7 +6,7 @@ import rimraf from 'rimraf';
 import { PNG } from 'pngjs';
 import * as fs from 'fs';
 import path from 'path';
-import { enqueue } from '../../orchestrator';
+import { enqueue, onDone } from '../../orchestrator';
 
 export class Scene {
   public entities: Entity[] = [];
@@ -19,7 +19,7 @@ export class Scene {
   toRenderable(timestamp = 0) {
     const renderable = [];
     for(const entity of this.entities) {
-      renderable.push(entity.toRenderable(timestamp));
+      renderable.push(...entity.toRenderable(timestamp));
     }
     return renderable;
   }
@@ -36,7 +36,7 @@ export class Scene {
     mkdirp.sync(outdir);
     const aspectRatio = resolution[0] / resolution[1];
     for(let timestamp = 0; timestamp < (fps * duration); timestamp += 1) {
-      process.stdout.write(`\rRendering ${(timestamp / (fps * duration) * 100).toFixed(2)}%  `);
+      process.stdout.write(`\rQueueing tasks ${(timestamp / (fps * duration) * 100).toFixed(2)}%  `);
       const renderable = this.toRenderable(timestamp / fps);
       const frameName  = ('000000' + timestamp.toString()).substr(-6);
       enqueue({
@@ -51,10 +51,13 @@ export class Scene {
         outdir,
       });
     }
-    process.stdout.write(`\rRendering 100.00%  \n`);
-    // exec(`ffmpeg -y -framerate ${fps} -i '${outdir}/%06d.png' -pix_fmt yuva420p -b:v 2500k -maxrate 2500k -minrate 1k -speed 0 '${outdir}/video.webm'`, (err, stdout, stderr) => {
-    //   if (stderr) process.stderr.write(stderr);
-    //   if (stdout) process.stdout.write(stdout);
-    // });
+    process.stdout.write(`\rAll tasks enqueued            \n`);
+    onDone(() => {
+      exec(`ffmpeg -y -framerate ${fps} -i '${outdir}/%06d.png' -pix_fmt yuva420p -b:v 2500k -maxrate 2500k -minrate 1k -speed 0 '${outdir}/video.webm'`, (err, stdout, stderr) => {
+        if (stderr) process.stderr.write(stderr);
+        if (stdout) process.stdout.write(stdout);
+        process.exit(0);
+      });
+    });
   }
 }

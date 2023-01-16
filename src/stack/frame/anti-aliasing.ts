@@ -71,8 +71,8 @@ export function render_aa_corner(
   });
 
   // Iterate over the whole canvas
-  for(let y=0; y<img.height; y++) {
-    for(let x=0; x<img.width; x++) {
+  for(let y=0; y < img.height; y++) {
+    for(let x=0; x < img.width; x++) {
       const dst_idx = (img.width * y + x) << 2;
       const src_idx = [
         ((intermediate.width * (y+0) + (x+0)) << 2),
@@ -94,7 +94,7 @@ export function render_aa_corner(
 
       // Add colors from the src pixels
       let colorWeight = 0;
-      for(let i=0; i<4; i++) {
+      for(let i=0; i < 4; i++) {
         if (intermediate.data[src_idx[i] + 3]) {
           colorWeight++;
           color[0] += intermediate.data[src_idx[i] + 0] ** 2;
@@ -169,8 +169,8 @@ export function render_aa_dual(
   });
 
   // Iterate over the whole canvas
-  for(let y=0; y<img.height; y++) {
-    for(let x=0; x<img.width; x++) {
+  for(let y=0; y < img.height; y++) {
+    for(let x=0; x < img.width; x++) {
       const dst_idx = (img.width * y + x) << 2;
 
       const int_idx = [

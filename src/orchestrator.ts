@@ -1,13 +1,19 @@
 import glob from 'fast-glob';
 import path from 'path';
 
+let   totalWorkers     = 1;
 const availableWorkers = [];
 const taskQueue        = [];
+const listeners        = [];
 
 const projects = glob.sync([
   path.join(__dirname, 'project', '*.js'),
   path.join(__dirname, 'project', '*', 'index.js'),
 ]);
+
+export function onDone(fn: Function) {
+  listeners.push(fn);
+}
 
 export function messageHandler(worker, message: any): void {
   switch(message.state) {
@@ -17,6 +23,9 @@ export function messageHandler(worker, message: any): void {
         console.log(`Queue length: ${taskQueue.length}`);
       } else {
         availableWorkers.push(worker);
+      }
+      if (availableWorkers.length == totalWorkers) {
+        listeners.forEach(fn => fn());
       }
       break;
   }
@@ -31,6 +40,7 @@ export function enqueue(task: any): void {
 }
 
 export function main(numWorkers: number): void {
+  totalWorkers = numWorkers;
   for(const projectFile of projects) {
     const {
       scene,
