@@ -20,7 +20,6 @@ export function messageHandler(worker, message: any): void {
     case 'waiting':
       if (taskQueue.length) {
         worker.send({ task: taskQueue.shift() });
-        console.log(`Queue length: ${taskQueue.length}`);
       } else {
         availableWorkers.push(worker);
       }
@@ -36,7 +35,6 @@ export function enqueue(task: any): void {
   if (availableWorkers.length) {
     availableWorkers.shift().send({ task: taskQueue.shift() });
   }
-  console.log(`Queue length: ${taskQueue.length}`);
 }
 
 export function main(numWorkers: number): void {

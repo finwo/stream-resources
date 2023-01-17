@@ -1,7 +1,10 @@
-import { Scene     } from '../stack/scene/scene';
-import { AA_METHOD } from '../stack/frame/anti-aliasing';
-import { rotate    } from '../stack/rotate';
-import { sep       } from 'path';
+import { Scene         } from '../stack/scene/scene';
+import { AA_METHOD     } from '../stack/frame/anti-aliasing';
+import { rotate        } from '../stack/rotate';
+import { sep           } from 'path';
+import { loadSvg       } from '../loader/svg';
+import { insidePolygon } from '../stack/frame/polygon-detection';
+import * as path from 'path';
 
 const aspectRatio         = 16/9;
 export const pixelHeight  = 1440;
@@ -14,7 +17,45 @@ const windowWidth       = windowHeight * aspectRatio;
 export const pixelWidth = pixelHeight * aspectRatio;
 export const aa_method  = AA_METHOD.SSAA32;
 
-scene.entities.push({
+const img = {
+  // data: loadSvg(path.join(__dirname, '..', '..', 'assets', '0006 - logo.svg')),
+  data: loadSvg(path.join(__dirname, '..', '..', 'assets', '0007 - logo lores.svg')),
+  // data: loadSvg('/home/finwo/Administration/finwo/media/logo/logo-dark.svg'),
+  // data: loadSvg(path.join(__dirname, '..', '..', 'test.xml')),
+  toRenderable(timestamp = 0) {
+    const output = [];
+    const scale  = 0.3 + ((timestamp-1.1) * 0.05);
+
+    // Get dark slider
+    const darkSlider = slider.toRenderable(timestamp)[0];
+
+    // Iterate over all paths & points
+    for(const entity of this.data) {
+      const ett = [[255, 255, 255]];
+      for(let i=1; i < entity.length; i++) {
+        const p = [];
+        for(const point of entity[i]) {
+          if (insidePolygon([
+            0,
+            0,
+            ...darkSlider.slice(1),
+          ], point[0] * scale, point[1] * scale)) {
+            p.push([
+              point[0] * scale,
+              point[1] * scale,
+            ]);
+          }
+        }
+        if (p.length) ett.push(p);
+      }
+      output.push(ett);
+    }
+
+    return output;
+  }
+};
+
+const slider = {
   base_red: [
     [0xcc,0x24,0x1d],
     [
@@ -60,19 +101,15 @@ scene.entities.push({
     for (let i=1; i < shape_red.length; i++) {
       const path = shape_red[i];
       for(const point of path) {
-        // point[0] -= windowWidth * 2.5;
         point[0] += c;
         point[0] += windowWidth * 0.1 * (timestamp < 1.1 ? -1 : 1);
-        // point[0] -= windowWidth * 5 / 2 * timestamp;
       }
     }
 
     for (let i=1; i < shape_dark.length; i++) {
       const path = shape_dark[i];
       for(const point of path) {
-        // point[0] -= windowWidth * 2.5;
         point[0] += c;
-        // point[0] -= windowWidth * 5 / 2 * timestamp;
       }
     }
 
@@ -81,4 +118,7 @@ scene.entities.push({
       shape_red
     ];
   }
-});
+};
+
+scene.entities.push(img);
+scene.entities.push(slider);
