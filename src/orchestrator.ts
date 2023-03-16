@@ -15,7 +15,7 @@ export function onDone(fn: Function) {
   listeners.push(fn);
 }
 
-export function messageHandler(worker, message: any): void {
+export async function messageHandler(worker, message: any): void {
   switch(message.state) {
     case 'waiting':
       if (taskQueue.length) {
@@ -24,7 +24,7 @@ export function messageHandler(worker, message: any): void {
         availableWorkers.push(worker);
       }
       if (availableWorkers.length == totalWorkers) {
-        listeners.forEach(fn => fn());
+        for(const fn of listeners) await fn();
       }
       break;
   }
@@ -58,6 +58,7 @@ export function main(numWorkers: number): void {
     );
   }
 
+  onDone(() => process.exit(0));
 
 }
 

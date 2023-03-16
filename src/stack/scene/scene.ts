@@ -53,10 +53,12 @@ export class Scene {
     }
     process.stdout.write(`\rAll tasks enqueued            \n`);
     onDone(() => {
-      exec(`ffmpeg -y -framerate ${fps} -i '${outdir}/%06d.png' -pix_fmt yuva420p -b:v 2500k -maxrate 2500k -minrate 1k -speed 0 '${outdir}/video.webm'`, (err, stdout, stderr) => {
-        if (stderr) process.stderr.write(stderr);
-        if (stdout) process.stdout.write(stdout);
-        process.exit(0);
+      return new Promise<void>(resolve => {
+        exec(`ffmpeg -y -framerate ${fps} -i '${outdir}/%06d.png' -pix_fmt yuva420p -b:v 2500k -maxrate 2500k -minrate 1k -speed 0 '${outdir}/video.webm'`, (err, stdout, stderr) => {
+          if (stderr) process.stderr.write(stderr);
+          if (stdout) process.stdout.write(stdout);
+          resolve();
+        });
       });
     });
   }

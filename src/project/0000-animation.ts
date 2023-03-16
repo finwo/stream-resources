@@ -12,16 +12,16 @@ export const duration     = 2.2;
 export const fps          = 60;
 export const windowHeight = 1;
 
+const col_accent = [0xCC, 0x24, 0x1D];
+const col_back   = [0x28, 0x28, 0x28];
+
 export const scene      = new Scene((__filename).split(`${sep}project${sep}`).pop().split(sep).shift().split('.').shift());
 const windowWidth       = windowHeight * aspectRatio;
 export const pixelWidth = pixelHeight * aspectRatio;
-export const aa_method  = AA_METHOD.SSAA32;
+export const aa_method  = AA_METHOD.SSAA8 + AA_METHOD.MSAA * 2;
 
 const img = {
-  // data: loadSvg(path.join(__dirname, '..', '..', 'assets', '0006 - logo.svg')),
-  data: loadSvg(path.join(__dirname, '..', '..', 'assets', '0007 - logo lores.svg')),
-  // data: loadSvg('/home/finwo/Administration/finwo/media/logo/logo-dark.svg'),
-  // data: loadSvg(path.join(__dirname, '..', '..', 'test.xml')),
+  data: loadSvg(path.join(__dirname, '..', '..', 'assets', '0000-stringer-transition', '0007 - logo lores.svg')),
   toRenderable(timestamp = 0) {
     const output = [];
     const scale  = 0.3 + ((timestamp-1.1) * 0.05);
@@ -57,7 +57,7 @@ const img = {
 
 const slider = {
   base_red: [
-    [0xcc,0x24,0x1d],
+    col_accent,
     [
       [ -(windowWidth * 1.5),  1.01 ],
       [   windowWidth * 1   ,  1.01 ],
@@ -66,7 +66,7 @@ const slider = {
     ]
   ],
   base_dark: [
-    [0x28,0x28,0x28],
+    col_back,
     [
       [ -(windowWidth * 1.5),  1.01 ],
       [   windowWidth * 1   ,  1.01 ],
