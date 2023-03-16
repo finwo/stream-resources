@@ -119,8 +119,8 @@ export function loadSvg(filename: string): any[] {
 
   // Iterate over shapes within those entities
   for(const entity of entities) {
-    const outputEntity = [hexToRgb(entity.attributes.fill || '#000')];
-    for(const el of entity.elements) {
+    for(const el of (entity.elements||[])) {
+      const outputEntity = [hexToRgb(el?.attributes?.fill || entity?.attributes?.fill || '#000')];
       const path = [];
       switch(el.name) {
         case 'path':
@@ -133,9 +133,9 @@ export function loadSvg(filename: string): any[] {
         default:
           throw new Error(`Unsupported element in <g>: <${el.name}>`);
       }
-    }
-    if (outputEntity.length > 1) {
-      output.push(outputEntity);
+      if (outputEntity.length > 1) {
+        output.push(outputEntity);
+      }
     }
   }
 
