@@ -16,3 +16,10 @@ dist: $(SRC) $(wildcard src/partial/*.html)
 	done
 	rm -rf dist/assets
 	cp -r assets dist/assets
+
+.PHONY: watch
+watch:
+	while true; do \
+		inotifywait --recursive --event modify src ; \
+		make dist ; \
+	done

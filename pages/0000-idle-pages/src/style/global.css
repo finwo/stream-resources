@@ -3,9 +3,17 @@
 }
 
 html, body {
-  font-family: sans-serif;
+  font-family: Montserrat;
+  font-size: 2vh;
   height: 100%;
   width: 100%;
   margin: 0;
   padding: 0;
+}
+
+svg.lucide {
+  vertical-align: middle;
+  height: 3em;
+  width: 3em;
+  margin-right: 1em;
 }
