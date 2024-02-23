@@ -7,6 +7,7 @@
 
 readonly PROGNAME=$(basename $0)
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+FIND=$(command -v gfind find | head -1)
 
 # Usage string
 usage="
@@ -56,7 +57,7 @@ while [ "$#" -gt 0 ]; do
       if [[ -d "${1}" ]]; then
         while IFS=':' read name filename; do
           PARTIALS["$name"]="${filename}"
-        done <<< "$(find "${1}" -type f -printf "%P:%p\n")"
+        done <<< "$(${FIND} "${1}" -type f -printf "%P:%p\n")"
       fi
       ;;
     *)
