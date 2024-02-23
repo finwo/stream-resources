@@ -1,3 +1,95 @@
+              <br/><br/>
+            </div>
+            <div id=socials>
+              <div>
+                <i icon-name="twitch"></i><br/>
+                <i icon-name="github"></i>
+                <i icon-name="gitlab"></i><br/>
+                <i icon-name="link-2"></i>
+              </div>
+              <div>
+                finwo_<br/>
+                finwo<br/>
+                finwo.nl
+              </div>
+            </div>
+          </span>
+        </center>
+      </main>
+    </div>
+
+    <style>
+      :root {
+        --sidebar-size: 3;
+        --main-size: calc(10 - var(--sidebar-size));
+        --img-size: 30vh;
+      }
+      #layout {
+        display: flex;
+        flex-flow: row nowrap;
+        align-items: stretch;
+        height: 100%;
+      }
+      #layout > aside {
+        flex: var(--sidebar-size);
+        background: #CC241D;
+      }
+      #layout > img {
+        box-shadow:
+          0 0 5.0vh #0008,
+          0 0 0.5vh #000;
+        border-radius: 50%;
+        flex: 0;
+        position: absolute;
+        left: calc((var(--sidebar-size) * 10vw) - (var(--img-size) / 2));
+        top: calc(50vh - (var(--img-size) / 2));
+        height: var(--img-size);
+      }
+      #layout > main {
+        flex: var(--main-size);
+        background  : #282828;
+        color       : #EBDBB2;
+        position    ; absolute;
+      }
+      #layout > main > center {
+        padding-left: calc(var(--img-size) / 2);
+        margin: 0 auto;
+        position: relative;
+        top: 50%;
+        -ms-transform: translateY(-50%);
+        transform: translateY(-50%);
+      }
+
+      span {
+        display: inline-block;
+      }
+      header {
+        font-family: "Noto Sans Mono", monospace;
+        font-weight: 500;
+        font-size: 15vh;
+        border-bottom: 2vh solid #EBDBB2;
+        margin-bottom: 4vh;
+      }
+
+      #subtitle {
+        font-size: 5vh;
+      }
+
+      #socials {
+        line-height: 4em;
+      }
+      #socials > div {
+        float: left;
+        width: 49.9%;
+      }
+      #socials > div:first-child {
+        text-align: right;
+      }
+      #socials > div:last-child {
+        text-align: left;
+      }
+    </style>
+
     <script src="https://unpkg.com/lucide@latest"></script>
     <script>lucide.createIcons();</script>
   </body>
