@@ -5,6 +5,29 @@ SRC+=$(wildcard src/page/*.html)
 
 OUT:=$(SRC:src/page/%=dist/page/%)
 
+WAIT=$(shell command -v inotifywait fswatch | head -1)
+ifeq ($(shell basename ${WAIT}), "inotifywait")
+WAIT+="--recursive"
+WAIT+="--event"
+WAIT+="modify"
+else
+WAIT+="--one-event"
+WAIT+="--recursive"
+WAIT+="--event"
+WAIT+="Created"
+WAIT+="--event"
+WAIT+="Updated"
+WAIT+="--event"
+WAIT+="Removed"
+WAIT+="--event"
+WAIT+="Renamed"
+WAIT+="--event"
+WAIT+="MovedFrom"
+WAIT+="--event"
+WAIT+="MovedTo"
+endif
+
+
 P=\#
 
 default: dist
@@ -20,6 +43,6 @@ dist: $(SRC) $(wildcard src/partial/*.html)
 .PHONY: watch
 watch:
 	while true; do \
-		inotifywait --recursive --event modify src ; \
+		${WAIT} src ; \
 		make dist ; \
 	done
